@@ -33,7 +33,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
     @Override
     public void onEnable() {
-        getLogger().info("MCPings Server Init");
+        this.saveDefaultConfig();
 
         this.getServer().getMessenger().registerIncomingPluginChannel(this, C2S_JOIN, this);
         this.getServer().getMessenger().registerIncomingPluginChannel(this, C2S_PING, this);
@@ -42,6 +42,8 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
     @Override
     public void onDisable() {
+        this.saveConfig();
+
         this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
     }
@@ -57,12 +59,17 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
             if (!moddedPlayers.contains(player)) {
                 moddedPlayers.add(player);
             }
+            List<String> pingBlacklist = this.getConfig().getStringList("pingBlacklist");
 
             for (Player p : Bukkit.getOnlinePlayers()) {
+                if (pingBlacklist.contains(p.getUniqueId().toString())) {
+                    continue;
+                }
+
                 if (moddedPlayers.contains(p)) {
                     p.sendPluginMessage(this, S2C_PING, message);
                 }
-                else {
+                else if (this.getConfig().getBoolean("enableServerPings")) {
                     ByteArrayDataInput in = ByteStreams.newDataInput(message);
 
                     Location loc = new Location(p.getWorld(), in.readDouble(), in.readDouble(), in.readDouble());
@@ -74,6 +81,8 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
                 }
             }
+            this.getConfig().set("pingBlacklist", pingBlacklist);
+            this.saveConfig();
         }
     }
 

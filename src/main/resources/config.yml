@@ -1,0 +1,6 @@
+# enable/disable serverside ping holograms for players without ping mod
+enableServerPings: true
+
+# players who have disabled pings
+pingBlacklist:
+  - 00000000-0000-0000-0000-000000000000
