@@ -11,7 +11,9 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
+import org.bukkit.Instrument;
 import org.bukkit.Location;
+import org.bukkit.Note;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -65,6 +67,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     newTextDisplay(p, loc, 5, "\u2022", 0x00000000);
                     newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, text, 0x40000000);
+                    p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
                 }
             }
         }
