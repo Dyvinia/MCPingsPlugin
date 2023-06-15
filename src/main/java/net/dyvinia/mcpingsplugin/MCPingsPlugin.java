@@ -54,6 +54,10 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
             }
         }
         else if (channel.equals(C2S_PING)) {
+            if (!moddedPlayers.contains(player)) {
+                moddedPlayers.add(player);
+            }
+
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (moddedPlayers.contains(p)) {
                     p.sendPluginMessage(this, S2C_PING, message);
