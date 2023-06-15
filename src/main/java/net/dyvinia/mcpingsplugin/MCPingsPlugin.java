@@ -81,17 +81,16 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
             if (!moddedPlayers.contains(player)) {
                 moddedPlayers.add(player);
             }
-            List<String> pingBlacklist = this.getConfig().getStringList("pingBlacklist");
 
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (pingBlacklist.contains(p.getUniqueId().toString())) {
+                if (this.getConfig().getStringList("pingBlacklist").contains(p.getUniqueId().toString())) {
                     continue;
                 }
                 if (!p.getWorld().equals(player.getWorld())) {
                     continue;
                 }
 
-                if (moddedPlayers.contains(p)) {
+                if (moddedPlayers.contains(p) && false) {
                     p.sendPluginMessage(this, S2C_PING, message);
                 }
                 else if (this.getConfig().getBoolean("enableServerPings")) {
@@ -108,15 +107,19 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     if (!pingChannel.equals("")) continue; // only show pings on global channel
 
-                    newTextDisplay(p, loc.add(new Vector(0f, -0.2f, 0f)), 5, "\u2022", 0x00000000);
-                    newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, username, 0x87000000);
+                    int duration = this.getConfig().getInt("serverPingDuration");
+
+                    createTextDisplay(p, loc.add(new Vector(0f, -0.2f, 0f)), duration, "\u2022", 0x00000000);
+                    if (this.getConfig().getBoolean("serverPingUsername"))
+                        createTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), duration, username, 0x87000000);
+
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
                 }
             }
         }
     }
 
-    private void newTextDisplay(Player player, Location loc, int duration, String text, Integer backgroundColor) {
+    private void createTextDisplay(Player player, Location loc, int duration, String text, Integer backgroundColor) {
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
         int entId = ThreadLocalRandom.current().nextInt();

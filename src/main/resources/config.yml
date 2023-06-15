@@ -1,5 +1,9 @@
 # enable/disable serverside ping holograms for players without ping mod
 enableServerPings: true
+# show username in serverside ping hologram
+serverPingUsername: true
+# lifetime of serverside ping hologram in seconds
+serverPingDuration: 4
 
 # players who have disabled pings
 pingBlacklist:
