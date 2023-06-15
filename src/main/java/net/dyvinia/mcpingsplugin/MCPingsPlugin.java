@@ -108,7 +108,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     if (!pingChannel.equals("")) continue; // only show pings on global channel
 
-                    newTextDisplay(p, loc, 5, "\u2022", 0x00000000);
+                    newTextDisplay(p, loc.add(new Vector(0f, -0.2f, 0f)), 5, "\u2022", 0x00000000);
                     newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, username, 0x87000000);
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
                 }
