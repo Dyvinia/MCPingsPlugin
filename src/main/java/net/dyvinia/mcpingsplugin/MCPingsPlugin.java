@@ -100,7 +100,11 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     // Is there a better way to do this? in.readUTF() doesn't work properly since it uses modified UTF
                     String text = StandardCharsets.UTF_8.decode(in).toString();
-                    String[] textArray = text.replace("\u0009", "\u0000").replace("\u0004", "\u0000").split("\u0000");
+                    String[] textArray = text
+                            .replace("\u0009", "\u0000")
+                            .replace("\u0008", "\u0000")
+                            .replace("\u0004", "\u0000")
+                            .split("\u0000");
 
                     String pingChannel = textArray[1];
                     String username = textArray[2];
