@@ -10,10 +10,9 @@ import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import org.bukkit.Bukkit;
-import org.bukkit.Instrument;
-import org.bukkit.Location;
-import org.bukkit.Note;
+import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -49,6 +48,29 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
     }
 
     @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equalsIgnoreCase("togglepings")) {
+            if (sender instanceof Player p) {
+                List<String> pingBlacklist = this.getConfig().getStringList("pingBlacklist");
+
+                if (pingBlacklist.contains(p.getUniqueId().toString())) {
+                    pingBlacklist.remove(p.getUniqueId().toString());
+                    p.sendMessage(ChatColor.GOLD + "Enabled Pings");
+                }
+                else {
+                    pingBlacklist.add(p.getUniqueId().toString());
+                    p.sendMessage(ChatColor.GOLD + "Disabled Pings");
+                }
+
+                this.getConfig().set("pingBlacklist", pingBlacklist);
+                this.saveConfig();
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (channel.equals(C2S_JOIN)) {
             if (!moddedPlayers.contains(player)) {
@@ -77,12 +99,10 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     String text = in.readUTF();
 
                     newTextDisplay(p, loc, 5, "\u2022", 0x00000000);
-                    newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, text, 0x40000000);
+                    newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, text, 0x87000000);
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
                 }
             }
-            this.getConfig().set("pingBlacklist", pingBlacklist);
-            this.saveConfig();
         }
     }
 

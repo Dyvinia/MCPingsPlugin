@@ -3,3 +3,6 @@ version: '${version}'
 main: net.dyvinia.mcpingsplugin.MCPingsPlugin
 api-version: 1.19
 authors: [Dyvinia]
+commands:
+  togglepings:
+    description: Toggles Pings
