@@ -16,6 +16,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -62,13 +63,14 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     String text = in.readUTF();
 
-                    newTextDisplay(p, loc, 5, text);
+                    newTextDisplay(p, loc, 5, "\u2022", 0x00000000);
+                    newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, text, 0x40000000);
                 }
             }
         }
     }
 
-    private void newTextDisplay(Player player, Location loc, int duration, String text) {
+    private void newTextDisplay(Player player, Location loc, int duration, String text, Integer backgroundColor) {
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
         int entId = ThreadLocalRandom.current().nextInt();
@@ -105,15 +107,17 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
         WrappedDataWatcher.Serializer byteSerializer = WrappedDataWatcher.Registry.get(Byte.class);
         WrappedDataWatcher.Serializer chatSerializer = WrappedDataWatcher.Registry.getChatComponentSerializer();
-        WrappedDataWatcher.Serializer boolSerializer = WrappedDataWatcher.Registry.get(Boolean.class);
+        WrappedDataWatcher.Serializer intSerializer = WrappedDataWatcher.Registry.get(Integer.class);
 
         List<WrappedDataValue> dataValues = new ArrayList<>();
 
         Byte billboard = 3;
         dataValues.add(new WrappedDataValue(14, byteSerializer, billboard));
 
-        Object optChat = WrappedChatComponent.fromChatMessage(text)[0].getHandle();
+        Object optChat = WrappedChatComponent.fromText(text).getHandle();
         dataValues.add(new WrappedDataValue(22, chatSerializer, optChat));
+
+        dataValues.add(new WrappedDataValue(24, intSerializer, backgroundColor));
 
         Byte seeThrough = 0x02;
         dataValues.add(new WrappedDataValue(26, byteSerializer, seeThrough));
