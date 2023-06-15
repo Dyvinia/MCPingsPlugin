@@ -90,7 +90,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     continue;
                 }
 
-                if (moddedPlayers.contains(p) && false) {
+                if (moddedPlayers.contains(p)) {
                     p.sendPluginMessage(this, S2C_PING, message);
                 }
                 else if (this.getConfig().getBoolean("enableServerPings")) {
