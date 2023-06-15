@@ -8,8 +8,6 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -19,6 +17,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -95,14 +95,21 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     p.sendPluginMessage(this, S2C_PING, message);
                 }
                 else if (this.getConfig().getBoolean("enableServerPings")) {
-                    ByteArrayDataInput in = ByteStreams.newDataInput(message);
+                    ByteBuffer in = ByteBuffer.wrap(message);
 
-                    Location loc = new Location(p.getWorld(), in.readDouble(), in.readDouble(), in.readDouble());
+                    Location loc = new Location(p.getWorld(), in.getDouble(), in.getDouble(), in.getDouble());
 
-                    String text = in.readUTF();
+                    // Is there a better way to do this? in.readUTF() doesn't work properly since it uses modified UTF
+                    String text = StandardCharsets.UTF_8.decode(in).toString();
+                    String[] textArray = text.replace("\u0009", "\u0000").replace("\u0004", "\u0000").split("\u0000");
+
+                    String pingChannel = textArray[1];
+                    String username = textArray[2];
+
+                    if (!pingChannel.equals("")) continue; // only show pings on global channel
 
                     newTextDisplay(p, loc, 5, "\u2022", 0x00000000);
-                    newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, text, 0x87000000);
+                    newTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), 5, username, 0x87000000);
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
                 }
             }
