@@ -1,4 +1,4 @@
-# enable/disable serverside ping holograms for players without ping mod
+# enable/disable serverside ping holograms for players without ping mod [requires ProtocolLib]
 enableServerPings: true
 # show username in serverside ping hologram
 serverPingUsername: true
