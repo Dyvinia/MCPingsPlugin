@@ -87,6 +87,9 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                 if (pingBlacklist.contains(p.getUniqueId().toString())) {
                     continue;
                 }
+                if (!p.getWorld().equals(player.getWorld())) {
+                    continue;
+                }
 
                 if (moddedPlayers.contains(p)) {
                     p.sendPluginMessage(this, S2C_PING, message);
