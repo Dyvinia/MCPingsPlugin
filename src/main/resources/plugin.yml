@@ -1,7 +1,7 @@
 name: MCPingsPlugin
 version: '${version}'
 main: net.dyvinia.mcpingsplugin.MCPingsPlugin
-api-version: 1.19
+api-version: '1.20'
 authors: [Dyvinia]
 commands:
   togglepings:
