@@ -15,6 +15,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.nio.ByteBuffer;
@@ -90,7 +91,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     continue;
                 }
 
-                if (moddedPlayers.contains(p)) {
+                if (moddedPlayers.contains(p) && false) {
                     p.sendPluginMessage(this, S2C_PING, message);
                 }
                 else if (this.getConfig().getBoolean("enableServerPings")) {
@@ -113,17 +114,35 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     int duration = this.getConfig().getInt("serverPingDuration");
 
+                    // Ping Icon
                     createTextDisplay(p, loc.add(new Vector(0f, -0.2f, 0f)), duration, "\u2022", 0x00000000);
+
+                    // Ping Distance
+                    int refreshRate = 4;
+                    double distance = player.getLocation().distance(loc);
+                    int distanceDisplay = createTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
+                    new BukkitRunnable() {
+                        int count = 0;
+                        public void run() {
+                            count++;
+                            updateTextDisplay(p, distanceDisplay, String.format("%.1fm", player.getLocation().distance(loc)));
+                            if (count > duration * 20/refreshRate)
+                                cancel();
+                        }
+                    }.runTaskTimer(this, 0, refreshRate);
+
+                    // Ping Username
                     if (this.getConfig().getBoolean("serverPingUsername"))
                         createTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), duration, username, 0x87000000);
 
+                    // Ping Sound
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
                 }
             }
         }
     }
 
-    private void createTextDisplay(Player player, Location loc, int duration, String text, Integer backgroundColor) {
+    private int createTextDisplay(Player player, Location loc, int duration, String text, Integer backgroundColor) {
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
         int entId = ThreadLocalRandom.current().nextInt();
@@ -189,5 +208,27 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
             packetKill.getIntLists().write(0, intList);
             protocolManager.sendServerPacket(player, packetKill);
         }, 20L * duration);
+
+        return entId;
+    }
+
+    private void updateTextDisplay(Player player, int entId, String text) {
+        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+
+        PacketType typeMeta = PacketType.Play.Server.ENTITY_METADATA;
+        PacketContainer packetMeta = ProtocolLibrary.getProtocolManager().createPacket(typeMeta);
+
+        packetMeta.getIntegers().write(0, entId);
+
+        WrappedDataWatcher.Serializer chatSerializer = WrappedDataWatcher.Registry.getChatComponentSerializer();
+
+        List<WrappedDataValue> dataValues = new ArrayList<>();
+
+        Object optChat = WrappedChatComponent.fromText(text).getHandle();
+        dataValues.add(new WrappedDataValue(22, chatSerializer, optChat));
+
+        packetMeta.getDataValueCollectionModifier().write(0, dataValues);
+
+        protocolManager.sendServerPacket(player, packetMeta);
     }
 }
