@@ -94,7 +94,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                 if (moddedPlayers.contains(p) && false) {
                     p.sendPluginMessage(this, S2C_PING, message);
                 }
-                else if (this.getConfig().getBoolean("enableServerPings")) {
+                else if (this.getConfig().getBoolean("serverPings.enabled")) {
                     ByteBuffer in = ByteBuffer.wrap(message);
 
                     Location loc = new Location(p.getWorld(), in.getDouble(), in.getDouble(), in.getDouble());
@@ -112,13 +112,13 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     if (!pingChannel.equals("")) continue; // only show pings on global channel
 
-                    int duration = this.getConfig().getInt("serverPingDuration");
+                    int duration = this.getConfig().getInt("serverPings.pingDuration");
 
                     // Ping Icon
                     createTextDisplay(p, loc.add(new Vector(0f, -0.2f, 0f)), duration, "\u2022", 0x00000000);
 
                     // Ping Distance
-                    int refreshRate = 4;
+                    int refreshRate = this.getConfig().getInt("serverPings.pingRefreshRate");
                     double distance = player.getLocation().distance(loc);
                     int distanceDisplay = createTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
                     new BukkitRunnable() {
@@ -132,7 +132,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     }.runTaskTimer(this, 0, refreshRate);
 
                     // Ping Username
-                    if (this.getConfig().getBoolean("serverPingUsername"))
+                    if (this.getConfig().getBoolean("serverPings.showPingUsername"))
                         createTextDisplay(p, loc.add(new Vector(0f, 0.25f, 0f)), duration, username, 0x87000000);
 
                     // Ping Sound

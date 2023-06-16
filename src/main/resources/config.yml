@@ -1,9 +1,12 @@
-# enable/disable serverside ping holograms for players without ping mod [requires ProtocolLib]
-enableServerPings: true
-# show username in serverside ping hologram
-serverPingUsername: true
-# lifetime of serverside ping hologram in seconds
-serverPingDuration: 4
+# serverside ping holograms for players without ping mod [requires ProtocolLib]
+serverPings:
+  enabled: true
+  # show username in ping hologram
+  showPingUsername: true
+  # lifetime of ping hologram in seconds
+  pingDuration: 4
+  # how often ping hologram gets updated in ticks [20 ticks per second]
+  pingRefreshRate: 4
 
 # players who have disabled pings
 pingBlacklist:
