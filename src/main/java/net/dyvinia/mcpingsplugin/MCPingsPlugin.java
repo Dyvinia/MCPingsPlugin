@@ -119,21 +119,23 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     // Ping Distance
                     int refreshRate = this.getConfig().getInt("serverPings.pingRefreshRate");
-                    double distance = p.getLocation().distance(loc);
-                    int distanceDisplay = createTextDisplay(p, loc.add(new Vector(0f, 0.35f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
-                    new BukkitRunnable() {
-                        int count = 0;
-                        public void run() {
-                            count++;
-                            updateTextDisplay(p, distanceDisplay, String.format("%.1fm", p.getLocation().distance(loc)));
-                            if (count > duration * 20/refreshRate)
-                                cancel();
-                        }
-                    }.runTaskTimer(this, 0, refreshRate);
+                    if (refreshRate > 0) {
+                        double distance = p.getLocation().distance(loc);
+                        int distanceDisplay = createTextDisplay(p, loc.add(new Vector(0f, 0.30f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
+                        new BukkitRunnable() {
+                            int count = 0;
+                            public void run() {
+                                count++;
+                                updateTextDisplay(p, distanceDisplay, String.format("%.1fm", p.getLocation().distance(loc)));
+                                if (count > duration * 20/refreshRate)
+                                    cancel();
+                            }
+                        }.runTaskTimer(this, 0, refreshRate);
+                    }
 
                     // Ping Username
                     if (this.getConfig().getBoolean("serverPings.showPingUsername"))
-                        createTextDisplay(p, loc.add(new Vector(0f, 0.35f, 0f)), duration, username, 0x87000000);
+                        createTextDisplay(p, loc.add(new Vector(0f, 0.30f, 0f)), duration, username, 0x87000000);
 
                     // Ping Sound
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));

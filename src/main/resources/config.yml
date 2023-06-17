@@ -5,7 +5,8 @@ serverPings:
   showPingUsername: true
   # lifetime of ping hologram in seconds
   pingDuration: 4
-  # how often ping hologram gets updated in ticks [20 ticks per second]
+  # how often distance in the ping hologram gets updated in ticks [20 ticks per second]
+  # set to 0 to disable showing distance in the hologram
   pingRefreshRate: 4
 
 # players who have disabled pings
