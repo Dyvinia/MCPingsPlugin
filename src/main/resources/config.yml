@@ -2,7 +2,7 @@
 serverPings:
   enabled: true
   # show username in ping hologram
-  showPingUsername: true
+  showPingUsername: false
   # lifetime of ping hologram in seconds
   pingDuration: 4
   # how often distance in the ping hologram gets updated in ticks [20 ticks per second]
