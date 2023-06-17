@@ -119,13 +119,13 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     // Ping Distance
                     int refreshRate = this.getConfig().getInt("serverPings.pingRefreshRate");
-                    double distance = player.getLocation().distance(loc);
+                    double distance = p.getLocation().distance(loc);
                     int distanceDisplay = createTextDisplay(p, loc.add(new Vector(0f, 0.35f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
                     new BukkitRunnable() {
                         int count = 0;
                         public void run() {
                             count++;
-                            updateTextDisplay(p, distanceDisplay, String.format("%.1fm", player.getLocation().distance(loc)));
+                            updateTextDisplay(p, distanceDisplay, String.format("%.1fm", p.getLocation().distance(loc)));
                             if (count > duration * 20/refreshRate)
                                 cancel();
                         }
