@@ -29,7 +29,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
     public final String C2S_PING = "mcpings-c2s:ping";
     public final String S2C_PING = "mcpings-s2c:ping";
 
-    private List<Player> moddedPlayers = new ArrayList<>();
+    private final List<Player> moddedPlayers = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -42,8 +42,6 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
     @Override
     public void onDisable() {
-        this.saveConfig();
-
         this.getServer().getMessenger().unregisterIncomingPluginChannel(this);
         this.getServer().getMessenger().unregisterOutgoingPluginChannel(this);
     }
@@ -74,26 +72,26 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
     @Override
     public void onPluginMessageReceived(String channel, Player player, byte[] message) {
         if (channel.equals(C2S_JOIN)) {
-            if (!moddedPlayers.contains(player)) {
+            if (!moddedPlayers.contains(player))
                 moddedPlayers.add(player);
-            }
         }
+
         else if (channel.equals(C2S_PING)) {
-            if (!moddedPlayers.contains(player)) {
+            if (!moddedPlayers.contains(player))
                 moddedPlayers.add(player);
-            }
 
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (this.getConfig().getStringList("pingBlacklist").contains(p.getUniqueId().toString())) {
+                if (this.getConfig().getStringList("pingBlacklist").contains(p.getUniqueId().toString()))
                     continue;
-                }
-                if (!p.getWorld().equals(player.getWorld())) {
+                if (!p.getWorld().equals(player.getWorld()))
                     continue;
-                }
 
+                // Send Modded Packet to Modded Clients
                 if (moddedPlayers.contains(p)) {
                     p.sendPluginMessage(this, S2C_PING, message);
                 }
+
+                // Create Serverside Ping Hologram
                 else if (this.getConfig().getBoolean("serverPings.enabled")) {
                     ByteBuffer in = ByteBuffer.wrap(message);
 
@@ -110,7 +108,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     String pingChannel = textArray[1];
                     String username = textArray[2];
 
-                    if (!pingChannel.equals("")) continue; // only show pings on global channel
+                    if (!pingChannel.equals("")) continue; // only show pings that are on the global channel
 
                     int duration = this.getConfig().getInt("serverPings.pingDuration");
 
@@ -121,12 +119,14 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     int refreshRate = this.getConfig().getInt("serverPings.pingRefreshRate");
                     if (refreshRate > 0) {
                         double distance = p.getLocation().distance(loc);
-                        int distanceDisplay = createTextDisplay(p, loc.add(new Vector(0f, 0.30f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
+                        int distDisplayId = createTextDisplay(p, loc.add(new Vector(0f, 0.3f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
+
+                        // update distance text
                         new BukkitRunnable() {
                             int count = 0;
                             public void run() {
                                 count++;
-                                updateTextDisplay(p, distanceDisplay, String.format("%.1fm", p.getLocation().distance(loc)));
+                                updateTextDisplay(p, distDisplayId, String.format("%.1fm", p.getLocation().distance(loc)));
                                 if (count > duration * 20/refreshRate)
                                     cancel();
                             }
@@ -135,7 +135,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     // Ping Username
                     if (this.getConfig().getBoolean("serverPings.showPingUsername"))
-                        createTextDisplay(p, loc.add(new Vector(0f, 0.30f, 0f)), duration, username, 0x87000000);
+                        createTextDisplay(p, loc.add(new Vector(0f, 0.3f, 0f)), duration, username, 0x87000000);
 
                     // Ping Sound
                     p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
@@ -150,6 +150,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
         int entId = ThreadLocalRandom.current().nextInt();
         UUID entUuid = UUID.randomUUID();
 
+        // Spawn Packet
         PacketType type = PacketType.Play.Server.SPAWN_ENTITY;
         PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(type);
 
@@ -158,22 +159,23 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
         StructureModifier<UUID> uuidMod = packet.getUUIDs();
         StructureModifier<Double> doubleMod = packet.getDoubles();
 
-        // Write id of entity
+        // id
         intMod.write(0, entId);
 
-        // Write type of entity
+        // type
         typeMod.write(0, EntityType.TEXT_DISPLAY);
 
-        // Write entities UUID
+        // UUID
         uuidMod.write(0, entUuid);
 
-        // Write position
+        // location
         doubleMod.write(0, loc.getX());
         doubleMod.write(1, loc.getY());
         doubleMod.write(2, loc.getZ());
 
         protocolManager.sendServerPacket(player, packet);
 
+        // Metadata Packet
         PacketType typeMeta = PacketType.Play.Server.ENTITY_METADATA;
         PacketContainer packetMeta = ProtocolLibrary.getProtocolManager().createPacket(typeMeta);
 
@@ -185,14 +187,18 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
         List<WrappedDataValue> dataValues = new ArrayList<>();
 
+        // billboard
         Byte billboard = 3;
         dataValues.add(new WrappedDataValue(14, byteSerializer, billboard));
 
+        // text
         Object optChat = WrappedChatComponent.fromText(text).getHandle();
         dataValues.add(new WrappedDataValue(22, chatSerializer, optChat));
 
+        // background color
         dataValues.add(new WrappedDataValue(24, intSerializer, backgroundColor));
 
+        // visible through blocks
         Byte seeThrough = 0x02;
         dataValues.add(new WrappedDataValue(26, byteSerializer, seeThrough));
 
@@ -200,6 +206,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
         protocolManager.sendServerPacket(player, packetMeta);
 
+        // Kill Packet
         Bukkit.getScheduler().runTaskLater(this, () -> {
             PacketType typeKill = PacketType.Play.Server.ENTITY_DESTROY;
             PacketContainer packetKill = ProtocolLibrary.getProtocolManager().createPacket(typeKill);
