@@ -119,7 +119,7 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
                     int refreshRate = this.getConfig().getInt("serverPings.pingRefreshRate");
                     if (refreshRate > 0) {
                         double distance = p.getLocation().distance(loc);
-                        int distDisplayId = createTextDisplay(p, loc.add(new Vector(0f, 0.3f, 0f)), duration, String.format("%.1fm", distance), 0x87000000);
+                        int distDisplayId = createTextDisplay(p, loc.add(new Vector(0f, 0.3f, 0f)), duration, String.format("%.1fm", distance), 0x55000000);
 
                         // update distance text
                         new BukkitRunnable() {
@@ -135,10 +135,10 @@ public final class MCPingsPlugin extends JavaPlugin implements PluginMessageList
 
                     // Ping Username
                     if (this.getConfig().getBoolean("serverPings.showPingUsername"))
-                        createTextDisplay(p, loc.add(new Vector(0f, 0.3f, 0f)), duration, username, 0x87000000);
+                        createTextDisplay(p, loc.add(new Vector(0f, 0.3f, 0f)), duration, username, 0x55000000);
 
                     // Ping Sound
-                    p.playNote(loc, Instrument.BELL, Note.natural(0, Note.Tone.D));
+                    p.playSound(loc, Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1f);
                 }
             }
         }
